@@ -1,0 +1,21 @@
+#%RAML 1.0 Library
+usage: Used for common data types across all api calls
+
+types: 
+
+  errorType:
+    description: This type is for used to provide detailed information about the error occured in a generic matter. All APIs should incorporate this object
+    type: object
+    properties:
+      errorCode:
+        type: integer
+        required: true 
+      errorSummary:
+        type: string
+        required: false
+      errorDescription:
+        type: string
+        required: false
+      errorType:
+        type: string
+        required: false

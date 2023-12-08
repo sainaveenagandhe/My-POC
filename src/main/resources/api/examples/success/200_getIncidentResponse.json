@@ -1,0 +1,11 @@
+{
+    "IncidentId": "INC1234",
+    "Status": "Completed",
+    "reportedBy": "Sai Varun Kouda",
+    "assignedTo": "Pooja Nair",
+    "creationDate": "2023-09-09",
+    "lastUpdated": "2023-09-11",
+    "Description" : "Need VDI Access",
+    "Short Description": "Need VDI Access",
+    "Comments": "VDI Access Provided"
+} 

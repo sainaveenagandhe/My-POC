@@ -1,0 +1,17 @@
+#%RAML 1.0 SecurityScheme
+type: OAuth 2.0
+describedBy:
+  headers:
+    Authorization: 
+      type: string
+      required: true
+  responses:
+    401:
+      description: Bad or expired token.
+    403:
+      description: Bad OAuth request.
+settings:
+  authorizationUri: http://mule-oauth-app-v1.us-e2.cloudhub.io/validate 
+  accessTokenUri: http://mule-oauth-app-v1.us-e2.cloudhub.io/token
+  authorizationGrants: [client_credentials]
+          
