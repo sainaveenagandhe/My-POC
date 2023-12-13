@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
     <flow name="resource-onboarding-main">
-        <http:listener config-ref="resource-onboarding-httpListenerConfig" path="/api/*">
+        <http:listener config-ref="Https_Listener_Config" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
-                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
             </http:response>
             <http:error-response statusCode="#[vars.httpStatus default 500]">
-                <http:body>#[payload]</http:body>
-                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
             </http:error-response>
         </http:listener>
         <apikit:router config-ref="resource-onboarding-config" />
@@ -92,14 +92,14 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-<!-- [STUDIO:"resource-onboarding-console"]    <flow name="resource-onboarding-console">
-        <http:listener config-ref="resource-onboarding-httpListenerConfig" path="/console/*">
-            <http:response statusCode="#[vars.httpStatus default 200&#93;">
-                <http:headers>#[vars.outboundHeaders default {}&#93;</http:headers>
+        <flow name="resource-onboarding-console">
+        <http:listener config-ref="Https_Listener_Config" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
             </http:response>
-            <http:error-response statusCode="#[vars.httpStatus default 500&#93;">
-                <http:body>#[payload&#93;</http:body>
-                <http:headers>#[vars.outboundHeaders default {}&#93;</http:headers>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
             </http:error-response>
         </http:listener>
         <apikit:console config-ref="resource-onboarding-config" />
@@ -109,8 +109,8 @@ output application/json
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
-&#45;&#45;-
-{message: "Resource not found"}&#93;&#93;></ee:set-payload>
+---
+{message: "Resource not found"}]]></ee:set-payload>
                     </ee:message>
                     <ee:variables>
                         <ee:set-variable variableName="httpStatus">404</ee:set-variable>
@@ -118,7 +118,7 @@ output application/json
                 </ee:transform>
             </on-error-propagate>
         </error-handler>
-    </flow> [STUDIO] -->
+    </flow>
     <flow name="post:\incident:application\json:resource-onboarding-config">
         <ee:transform doc:name="Transform Message">
             <ee:message>
@@ -128,7 +128,7 @@ output application/json
 payload]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-        <http:request method="POST" doc:name="calling prc api" doc:id="3a4cf355-a0b2-405c-ae7c-69ea3b781964" config-ref="HTTP_Request_configuration" path="mocking/api/v1/sources/exchange/assets/a580ad11-a106-4c57-820f-53ef177f98e9/resource-onboarding-exp-api-v1/1.0.7/m/incident">
+        <http:request method="POST" doc:name="calling prc api" doc:id="3a4cf355-a0b2-405c-ae7c-69ea3b781964" config-ref="HTTPS_Request_configuration" path="/api/incident">
             <http:headers><![CDATA[#[output application/java
 ---
 {
@@ -137,9 +137,17 @@ payload]]></ee:set-payload>
 	'Content-Type' : 'application/json'
 }]]]></http:headers>
         </http:request>
-		<logger level="INFO" doc:name="Logger" doc:id="d1f58bd8-6698-4cb6-810c-ad3b36c51ae7" message='"End of the dlow logger: Created Incident Successfully"' />
+        <ee:transform doc:name="Transform Message" doc:id="5d384b2a-a188-48cd-9793-98b26f9012f3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d1f58bd8-6698-4cb6-810c-ad3b36c51ae7" message='"#[payload]-------------------------End of the dlow logger: Created Incident Successfully"' />
     </flow>
-	<flow name="put:\incident:application\json:resource-onboarding-config">
+    <flow name="put:\incident:application\json:resource-onboarding-config">
         <ee:transform doc:name="Transform Message">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
@@ -148,32 +156,7 @@ output application/json
 payload]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-		<http:request method="PUT" doc:name="calling prc api" doc:id="a67d2285-4cf3-4998-984f-37d11c1c866e" config-ref="HTTP_Request_configuration" path="mocking/api/v1/sources/exchange/assets/a580ad11-a106-4c57-820f-53ef177f98e9/resource-onboarding-prc-api-v1/1.0.1/m/incident">
-            <http:headers><![CDATA[#[output application/java
----
-{
-	'client_secret' : 'fght565u7i92i90828u8908',
-	'client_id' : 'eff89760678429u8hg',
-	'Content-Type' : 'application/json'
-}]]]></http:headers>
-			<http:query-params ><![CDATA[#[output application/java
----
-{
-	'incidentId' : 'attributes.queryParams.incidentId'
-}]]]></http:query-params>
-        </http:request>
-		<logger level="INFO" doc:name="Logger" doc:id="80aaebf3-015c-4ad2-b2e0-dd0e367a9684" message='"End of the flow logger: Updated the Incident Successfully"'/>
-    </flow>
-    <flow name="get:\incident:resource-onboarding-config">
-        <ee:transform doc:name="Transform Message">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-payload]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
-        <http:request method="GET" doc:name="calling prc api" doc:id="d98b4ac6-a66f-48f7-a138-e742464a1c22" config-ref="HTTP_Request_configuration" path="mocking/api/v1/sources/exchange/assets/a580ad11-a106-4c57-820f-53ef177f98e9/resource-onboarding-exp-api-v1/1.0.7/m/incident">
+        <http:request method="PUT" doc:name="calling prc api" doc:id="a67d2285-4cf3-4998-984f-37d11c1c866e" config-ref="HTTPS_Request_configuration" path="/api/incident">
             <http:headers><![CDATA[#[output application/java
 ---
 {
@@ -187,6 +170,39 @@ payload]]></ee:set-payload>
 	'incidentId' : 'attributes.queryParams.incidentId'
 }]]]></http:query-params>
         </http:request>
-		<logger level="INFO" doc:name="Logger" doc:id="49512e9e-c43b-456d-a177-a61dae170634" message='"End of the flow logger: Retrieved Incident Successfully"'/>
+        <ee:transform doc:name="Transform Message1" doc:id="354fa8b0-0789-460e-9d52-91ada0a07c23">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="80aaebf3-015c-4ad2-b2e0-dd0e367a9684" message='"#[payload]-------------------------------End of the flow logger: Updated the Incident Successfully"' />
+    </flow>
+    <flow name="get:\incident:resource-onboarding-config">
+        <logger level="INFO" doc:name="start log" doc:id="b166e0b7-6d1b-43f5-b2af-7dbe993fefb0" message='"Start of the flow logger: Retrieve Incident"' />
+		<http:request method="GET" doc:name="calling prc api" doc:id="d98b4ac6-a66f-48f7-a138-e742464a1c22" config-ref="HTTPS_Request_configuration" path="/api/incident">
+            <http:headers><![CDATA[#[output application/java
+---
+{
+	'client_secret' : 'fght565u7i92i90828u8908',
+	'client_id' : 'eff89760678429u8hg'
+}]]]></http:headers>
+            <http:query-params><![CDATA[#[output application/java
+---
+{
+	'incidentId' : 'attributes.queryParams.incidentId'
+}]]]></http:query-params>
+        </http:request>
+        <ee:transform doc:name="Transform Message1" doc:id="058bdb89-4851-436e-8303-794f498d7603">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="49512e9e-c43b-456d-a177-a61dae170634" message='"#[payload]-----------------------------End of the flow logger: Retrieved Incident Successfully"' />
     </flow>
 </mule>

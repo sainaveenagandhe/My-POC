@@ -1,0 +1,6 @@
+{
+	"errorCode": 405,
+	"errorSummary":"Method Not Allowed",
+	"errorType": "Error",
+	"errorDescription": "Method Not Allowed"
+}
