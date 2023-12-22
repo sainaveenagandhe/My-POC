@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="resource-onboarding-exp-api-test-suite.xml" />
+	<munit:test name="resource-onboarding-exp-api-test-suite-resource-onboarding-createIncident-test" doc:id="13029aff-e1ca-452d-b7aa-0e80447a519b" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Listener" doc:id="6b855d58-d207-4555-b3bf-1d1a9cdcb0ff" processor="http:listener">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Http_Listener_Config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/*" attributeName="path" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Apikit" doc:id="7d4e2046-b46d-4a84-a460-daf7435df198" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="resource-onboarding-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="post:\incident:application\json:resource-onboarding-config" />
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Prc api call" doc:id="4a3da7fc-17eb-4eda-a709-c74ba566b834" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="calling prc api" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="HTTPS_Request_configuration" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/incident" attributeName="path" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[read(MunitTools::getResourceAsString('sample_data/201_IncidentAddedSuccessfully.json'),'text/plain')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  "reportedBy": "Sai Naveeena Gandhe",&#10;  "Category": "Network",&#10;  "subCategory": "VPN",&#10;  "bussinessService": "IT Services",&#10;  "Short Description": "Need VDI Access",&#10;  "Description" : "Not able to access my VDI Machine.",&#10;  "channel": "Email",&#10;  "status": "New",&#10;  "assignedTo": "zen mark",&#10;  "assignmentGroup": "Accenture Support",&#10;  "Comments": "New Request to VDI Access"&#10;}]' doc:name="Set Request Payload" doc:id="28d6c672-09bd-4526-8fac-78456db892ae" />
+			<flow-ref doc:name="Flow-ref to resource-onboarding-main" doc:id="6445adaa-be44-451c-9867-541166404b74" name="resource-onboarding-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert expression" doc:id="c7ccaa88-5d1c-487f-a040-e9c607c9c47e" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="resource-onboarding-exp-api-test-suite-resource-onboarding-getIncident-test" doc:id="3081cab8-8b64-4a38-9fc2-38e745317a6c" description="Test" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Listener" doc:id="51302236-6a9d-48f1-abbc-8d67c97ccce3" processor="http:listener" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Http_Listener_Config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/*" attributeName="path" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Apikit" doc:id="03bd0009-bf9f-4d65-a266-829190953b75" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="resource-onboarding-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				
+				<munit-tools:then-call flow="get:\incident:resource-onboarding-config" />
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Prc api call" doc:id="29dbbfb7-ac65-41ff-bf3e-517eb295d646" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="calling prc api" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="HTTPS_Request_configuration" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/incident" attributeName="path" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[read(MunitTools::getResourceAsString('sample_data/200_getIncidentResponse.json'),'text/plain')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to resource-onboarding-main" doc:id="367e30c3-7bbb-4cb7-8df7-a0e7301fcdd0" name="resource-onboarding-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert expression" doc:id="c58b7c31-0f1b-4903-9430-9219866dda8c" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="resource-onboarding-exp-api-test-suite-resource-onboarding-updateIncident-test" doc:id="6935a3e5-c475-4ce9-b138-88108d259738" description="Test" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Listener" doc:id="56c6c0dd-2118-4708-bdfe-e8dc1e7d4ad2" processor="http:listener" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Http_Listener_Config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/*" attributeName="path" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Apikit" doc:id="9647d3af-06fd-46e3-909b-adf425945a2d" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="resource-onboarding-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				
+				<munit-tools:then-call flow="put:\incident:application\json:resource-onboarding-config" />
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Prc api call" doc:id="99105d48-dcc4-499c-95cb-c6450a8ad683" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="PUT" attributeName="method" />
+					<munit-tools:with-attribute whereValue="calling prc api" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="HTTPS_Request_configuration" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/incident" attributeName="path" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[read(MunitTools::getResourceAsString('sample_data/200_IncidentUpdatedSuccessfully.json'),'text/plain')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;        "sys_id": "03c1cc514747f110169a9dbe316d433e",&#10;        "Comments": "VDI is having null white screen"&#10;}]' doc:name="Set Request Payload" doc:id="0334339d-5d50-4ceb-b1ff-422facace000" />
+			<flow-ref doc:name="Flow-ref to resource-onboarding-main" doc:id="f59e5ed3-0796-443a-8872-26947555a26a" name="resource-onboarding-main" />
+		</munit:execution>
+	</munit:test>
+
+
+</mule>

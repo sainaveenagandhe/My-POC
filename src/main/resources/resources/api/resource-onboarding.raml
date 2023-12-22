@@ -1,0 +1,145 @@
+#%RAML 1.0
+title: Resource Onboarding Exp API
+version: v1
+description: This experience API is used as an interface for external applications to create employee details, get employee details and create incidents for access.
+
+protocols: [HTTP,HTTPS]
+
+uses:
+  cdt: traits/commonErrorDatatypes.raml
+
+types:
+  createincident: !include datatypes/createIncident.raml
+  updateincident: !include datatypes/updateIncident.raml
+  getincident: !include datatypes/getIncident.raml
+
+securitySchemes:
+  oAuth2_0 : !include securitySchemes/securityScheme.raml
+    
+mediaType: 
+- application/json
+
+/incident:
+  get:
+    securedBy:
+      - oAuth2_0 
+    queryParameters:
+      incidentId: 
+        description: Unique Id of the incident
+        required: true
+    responses:
+      200:
+        body:
+          application/json:
+            type: getincident
+            example:
+              !include examples/success/200_getIncidentResponse.json
+      400:
+        description: 400 BAD REQUEST
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/400_BadRequest.json
+      500:
+        description: 500 INTERNAL SERVER ERROR.
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/500_InternalServerError.json
+      404:
+        body:
+          application/json:
+            type: cdt.errorType
+            example:
+              !include examples/errors/404_IncidentNotFoundResponse.json
+      405:
+        description: 405 Method Not Allowed.
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/405_MethodNotAllowed.json
+      415:
+        description: Media Type Not Supported.
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/415_unSupportedMediaType.json    
+  post:
+    securedBy:
+      - oAuth2_0 
+    body:
+      application/json:
+        type: createincident
+        example: !include examples/requests/createIncidentDetailsRequest.json
+    responses:
+      201: 
+        body:
+          application/json:
+            example: 
+              !include examples/success/201_IncidentAddedSuccessfully.json
+      400:
+        description: 400 BAD REQUEST
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/400_BadRequest.json
+      500:
+        description: 500 INTERNAL SERVER ERROR.
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/500_InternalServerError.json
+      405:
+        description: 405 Method Not Allowed.
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/405_MethodNotAllowed.json
+      415:
+        description: Media Type Not Supported.
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/415_unSupportedMediaType.json                
+
+  put:
+    securedBy:
+      - oAuth2_0 
+    queryParameters:
+      incidentId: 
+        description: Unique Id of the Incident
+        required: true
+    body:
+      application/json:
+        type: updateincident
+        example: !include examples/requests/updateIncidentDetailsRequest.json
+    responses:
+      201: 
+        body:
+          application/json:
+            example: 
+              !include examples/success/200_IncidentUpdatedSuccessfully.json
+      400:
+        description: 400 BAD REQUEST
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/400_BadRequest.json
+      500:
+        description: 500 INTERNAL SERVER ERROR.
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/500_InternalServerError.json
+      405:
+        description: 405 Method Not Allowed.
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/405_MethodNotAllowed.json
+      415:
+        description: Media Type Not Supported.
+        body:
+          application/json:
+            type: cdt.errorType
+            example: !include examples/errors/415_unSupportedMediaType.json            

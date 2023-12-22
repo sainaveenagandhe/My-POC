@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_a46c5e00_ccb9_47b0_b3da_4db2f61d2006_Output_Variables_jwtPayload = String | Binary
+
