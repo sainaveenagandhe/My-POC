@@ -1,23 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
-	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
-	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
-http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 	    <http:listener-config name="Http_Listener_Config">
-        <http:listener-connection host="0.0.0.0" port="8081">
+        <http:listener-connection host="0.0.0.0" port="8082" protocol="HTTPS">
+			<tls:context >
+				<tls:key-store type="jks" path="server-keystore.jks" keyPassword="mule23" password="mule23" />
+			</tls:context>
 		</http:listener-connection>
     </http:listener-config>
     <apikit:config name="resource-onboarding-config" api="resource-onboarding.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <http:request-config name="HTTPS_Request_configuration" doc:name="HTTP Request configuration" doc:id="5a304c91-898c-47bd-b4ba-6ce91777870e" >
-		<http:request-connection host="resource-onboarding-prc-api-v1.us-e2.cloudhub.io" port="80"/>
+		<http:request-connection host="resource-onboarding-prc-api-v1.us-e2.cloudhub.io" port="80">
+
+		</http:request-connection>
 	</http:request-config>
-	<global-property doc:name="Global Property" doc:id="889b60e1-ffd9-4dd1-9bf6-e536f2cce458" name="mule.env" value="local" />
-	<configuration-properties doc:name="Configuration properties" doc:id="617c90db-1bd2-42ee-9731-240e38d5e0a1" file="${mule.env}.properties" />
- 	<api-gateway:autodiscovery apiId="19175788" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="202c69c2-d30f-48de-b1b7-dc1756ef522f" flowRef="resource-onboarding-main" />
+	<global-property doc:name="Global Property" doc:id="889b60e1-ffd9-4dd1-9bf6-e536f2cce458" name="mule.env" value="dev" />
+	<configuration-properties doc:name="Configuration properties" doc:id="617c90db-1bd2-42ee-9731-240e38d5e0a1" file="${mule.env}.properties" />   	
+   	<api-gateway:autodiscovery apiId="19175788" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="202c69c2-d30f-48de-b1b7-dc1756ef522f" flowRef="resource-onboarding-main" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="ac139954-a596-4155-9573-aea735839c74" file="dev.properties" key="${secure.key}" />
+	<global-property doc:name="Global Property" doc:id="2cc16164-5949-4c1a-b027-7b63257f7f99" name="secure.key" value="1234567812345678" />
 </mule>

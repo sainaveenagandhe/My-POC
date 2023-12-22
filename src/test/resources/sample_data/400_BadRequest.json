@@ -1,0 +1,6 @@
+{
+	"errorCode": 400,
+	"errorSummary":"Bad Request",
+	"errorType": "Error",
+	"errorDescription": "Bad Request"
+}

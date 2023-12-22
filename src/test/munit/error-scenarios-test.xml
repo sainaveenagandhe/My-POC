@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<munit:config name="new-test-suite.xml" />
+	<munit:test name="error-scenarios-test-405" doc:id="579c488f-200e-4b80-a561-a051f218e530">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock http:listener" doc:id="4331f40a-9e98-4cfe-897f-c6d439098db3" processor="http:listener">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Http_Listener_Config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/*" attributeName="path" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock apikit:router" doc:id="42a47478-9c52-4806-b8ca-a431505f9aab" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="resource-onboarding-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[read(MunitTools::getResourceAsString('sample_data/405_MethodNotAllowed.json'),'text/plain')]" mediaType="application/json" />
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="8c094573-726e-42e1-afdc-587360c7ca98" >
+				<flow-ref doc:name="resource-onboarding-main" doc:id="0c261212-eacc-4e3f-94bf-18756921bb95" name="resource-onboarding-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2acbb796-ef2e-435c-909d-2ec8ffed2094" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="837dc0b0-7d0b-428e-859d-48cf2c4791f3" actual="#[vars.httpStatus]" expected="405"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="error-scenarios-test-400" doc:id="a8066716-b3cd-4d49-bb69-4fbe68a5a792">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock http listner" doc:id="76b0d70a-4c36-4541-8efe-27080bd12534" processor="http:listener" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Http_Listener_Config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/*" attributeName="path" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Apikit Router" doc:id="1696a45a-ff92-4cc1-b3d3-7a2eb14d8dac" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="resource-onboarding-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[read(MunitTools::getResourceAsString('sample_data/400_BadRequest.json'),'text/plain')]" mediaType="application/json" />
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+					<munit-tools:variables >
+						<munit-tools:variable key="'httpStatus'" value="#[400]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="7c502079-ad21-4010-b3ee-439004637915" >
+				<flow-ref doc:name="resource-onboarding-main" doc:id="88b96fce-7ec4-425f-8879-586885f49da6" name="resource-onboarding-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="3f19e871-3f1a-4e34-acce-d05c162669ee" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert expression" doc:id="0efd8d98-0b1c-4e67-8d03-2ac4428a6625" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="error-scenarios-test-404" doc:id="68dcef3c-dddd-4413-8921-7f89a6cdec7e">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock http listner" doc:id="7a80e8af-ed3b-49ee-8abf-67dce8e9fb49" processor="http:listener" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Http_Listener_Config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/*" attributeName="path" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Apikit Router" doc:id="7a4e647d-45a0-472e-a653-4872f6765590" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="resource-onboarding-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[read(MunitTools::getResourceAsString('sample_data/404_IncidentNotFoundResponse.json'),'text/plain')]" mediaType="application/json" />
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+					<munit-tools:variables >
+						<munit-tools:variable key="httpStatus" value="#[404]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="86f55602-9b3b-454e-a3c9-8db609ef3ca2" >
+				<flow-ref doc:name="resource-onboarding-main" doc:id="1942aac5-ce2b-4d3f-a78b-6bac4b044a27" name="resource-onboarding-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d0b99084-3ccd-4d26-8c87-9bcd9904cf94" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert expression" doc:id="48a839c8-701e-45c4-b251-2d35f09aea3a" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="error-scenarios-test-415" doc:id="dd07b03f-238b-4be3-98d1-c066550c2c50">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock http listner" doc:id="c18c0346-79bd-42f2-a789-5d8154cd2802" processor="http:listener" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Http_Listener_Config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/*" attributeName="path" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Apikit Router" doc:id="c4db3360-f928-4518-a643-c950ea0a1881" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="resource-onboarding-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[read(MunitTools::getResourceAsString('sample_data/415_unSupportedMediaType.json'),'text/plain')]" mediaType="application/json" />
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+					<munit-tools:variables >
+						<munit-tools:variable key="'httpStatus'" value="#[415]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="db472ce8-fcf1-4351-ba7b-feccd99f0f27" >
+				<flow-ref doc:name="resource-onboarding-main" doc:id="cc1fb140-de50-4b8c-9efd-4d03b5e40543" name="resource-onboarding-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="bb7de8f7-b9d5-4fba-86de-9f02208a714d" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert expression" doc:id="789fab8d-16e4-46e9-8f81-4ad28ab1ed4f" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="error-scenarios-test-500" doc:id="b242cb57-7234-4bae-a21c-2a7a396aeff1" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock http listner" doc:id="2654776d-5f87-431f-80ff-be522b44926d" processor="http:listener" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Http_Listener_Config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/*" attributeName="path" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Apikit Router" doc:id="2a066eb8-a9f8-4fde-93b0-10f3a506f06d" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="resource-onboarding-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[read(MunitTools::getResourceAsString('sample_data/500_InternalServerError.json'),'text/plain')]" mediaType="application/json" />
+					<munit-tools:error typeId=" HTTP:INTERNAL_SERVER_ERROR" />
+					<munit-tools:variables >
+						<munit-tools:variable key="httpStatus" value="#[500]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="c21730f3-3d62-4266-b460-37b0c598c483" >
+				<flow-ref doc:name="resource-onboarding-main" doc:id="27f8878a-6eb8-43fd-8dfd-7bf8110a7f4c" name="resource-onboarding-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d40f16c6-eb58-49c5-b043-813aebd9b0db" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert doc:name="Assert expression" doc:id="730e4383-f192-4054-be59-ebf8684737de" />
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

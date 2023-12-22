@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
-    <flow name="resource-onboarding-main">
+    <flow name="resource-onboarding-main" doc:id="a45668d9-f189-40d2-b023-2f8971b2d80a">
         <http:listener config-ref="Http_Listener_Config" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
@@ -11,113 +11,7 @@
             </http:error-response>
         </http:listener>
         <apikit:router config-ref="resource-onboarding-config" />
-        <error-handler>
-            <on-error-propagate type="APIKIT:BAD_REQUEST">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{message: "Bad request"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-            <on-error-propagate type="APIKIT:NOT_FOUND">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{message: "Resource not found"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{message: "Method not allowed"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{message: "Not acceptable"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{message: "Unsupported media type"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{message: "Not Implemented"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-        </error-handler>
-    </flow>
-        <flow name="resource-onboarding-console">
-        <http:listener config-ref="Http_Listener_Config" path="/console/*">
-            <http:response statusCode="#[vars.httpStatus default 200]">
-                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-            </http:response>
-            <http:error-response statusCode="#[vars.httpStatus default 500]">
-                <http:body><![CDATA[#[payload]]]></http:body>
-                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-            </http:error-response>
-        </http:listener>
-        <apikit:console config-ref="resource-onboarding-config" />
-        <error-handler>
-            <on-error-propagate type="APIKIT:NOT_FOUND">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{message: "Resource not found"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-        </error-handler>
+		<error-handler ref="common-error-handler" />
     </flow>
     <flow name="post:\incident:application\json:resource-onboarding-config">
         <logger level="INFO" doc:name="Strat Logger" doc:id="120af1e5-4d3f-42d8-a707-494b58ef2267" message='#["Start of the flow to Create Incident"]' category="com.org.mule.resource-onboarding.infoLogs"/>
@@ -130,8 +24,9 @@ payload]]></ee:set-payload>
             </ee:message>
         </ee:transform>
         <flow-ref doc:name="JWT Token" doc:id="7da20bad-27ac-4707-bbaa-57c9d0456ce9" name="jwt-token-generation-flow" />
-		<http:request method="POST" doc:name="calling prc api" doc:id="3a4cf355-a0b2-405c-ae7c-69ea3b781964" config-ref="HTTPS_Request_configuration" path="/api/incident">
-            <http:headers><![CDATA[#[output application/java
+		<until-successful maxRetries="2" doc:name="Until Successful" doc:id="02d2c21e-cdf5-4c1c-8f51-36ebd480fbf6" millisBetweenRetries="6000">
+			<http:request method="POST" doc:name="calling prc api" doc:id="3a4cf355-a0b2-405c-ae7c-69ea3b781964" config-ref="HTTPS_Request_configuration" path="/api/incident">
+			<http:headers><![CDATA[#[output application/java
 ---
 {
 	'client_secret' : 'fght565u7i92i90828u8908',
@@ -139,8 +34,12 @@ payload]]></ee:set-payload>
 	'jwt' : vars.jwtToken,
 	'Content-Type' : 'application/json'
 }]]]></http:headers>
+				<http:response-validator>
+					<http:success-status-code-validator values="200..499" />
+				</http:response-validator>
         </http:request>
-        <ee:transform doc:name="response payload" doc:id="5d384b2a-a188-48cd-9793-98b26f9012f3" >
+		</until-successful>
+		<ee:transform doc:name="response payload" doc:id="5d384b2a-a188-48cd-9793-98b26f9012f3" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -161,7 +60,8 @@ payload]]></ee:set-payload>
             </ee:message>
         </ee:transform>
         <flow-ref doc:name="JWT Token" doc:id="871aa6b0-4034-41c4-942f-0bf2e23b9bc9" name="jwt-token-generation-flow"/>
-		<http:request method="PUT" doc:name="calling prc api" doc:id="a67d2285-4cf3-4998-984f-37d11c1c866e" config-ref="HTTPS_Request_configuration" path="/api/incident">
+        <until-successful maxRetries="2" doc:name="Until Successful" doc:id="c7784f71-292d-4cd3-9355-a71bf8d506bb" millisBetweenRetries="6000">
+			<http:request method="PUT" doc:name="calling prc api" doc:id="a67d2285-4cf3-4998-984f-37d11c1c866e" config-ref="HTTPS_Request_configuration" path="/api/incident">
             <http:headers><![CDATA[#[output application/java
 ---
 {
@@ -176,7 +76,8 @@ payload]]></ee:set-payload>
 	'incidentId' : attributes.queryParams.incidentId
 }]]]></http:query-params>
         </http:request>
-        <logger level="DEBUG" doc:name="response Logger" doc:id="80aaebf3-015c-4ad2-b2e0-dd0e367a9684" message="#[payload]" category="com.org.mule.resource-onboarding.debugLogs" />
+		</until-successful>
+		<logger level="DEBUG" doc:name="response Logger" doc:id="80aaebf3-015c-4ad2-b2e0-dd0e367a9684" message="#[payload]" category="com.org.mule.resource-onboarding.debugLogs" />
 		<ee:transform doc:name="response payload" doc:id="354fa8b0-0789-460e-9d52-91ada0a07c23">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
@@ -190,7 +91,8 @@ payload]]></ee:set-payload>
     <flow name="get:\incident:resource-onboarding-config">
 		<logger level="INFO" doc:name="start log" doc:id="b166e0b7-6d1b-43f5-b2af-7dbe993fefb0" message='"Start of the flow logger: Retrieve Incident"' category="com.org.mule.resource-onboarding.infoLogs"/>
 		<flow-ref doc:name="JWT Token" doc:id="fce8f18c-4679-4218-a481-977c60d7e993" name="jwt-token-generation-flow" />
-		<http:request method="GET" doc:name="calling prc api" doc:id="d98b4ac6-a66f-48f7-a138-e742464a1c22" config-ref="HTTPS_Request_configuration" path="/api/incident">
+        <until-successful maxRetries="2" doc:name="Until Successful" doc:id="d4ce0a98-ad0b-46dc-88fc-d853b52b66c3" millisBetweenRetries="6000">
+			<http:request method="GET" doc:name="calling prc api" doc:id="d98b4ac6-a66f-48f7-a138-e742464a1c22" config-ref="HTTPS_Request_configuration" path="/api/incident">
             <http:headers><![CDATA[#[output application/java
 ---
 {
@@ -204,7 +106,8 @@ payload]]></ee:set-payload>
 	'incidentId' : attributes.queryParams.incidentId
 }]]]></http:query-params>
         </http:request>
-        <logger level="DEBUG" doc:name="response Logger" doc:id="05f2ab6c-c287-4512-9677-affa82dba0a3" message="#[payload]" category="com.org.mule.resource-onboarding.debugLogs" />
+		</until-successful>
+		<logger level="DEBUG" doc:name="response Logger" doc:id="05f2ab6c-c287-4512-9677-affa82dba0a3" message="#[payload]" category="com.org.mule.resource-onboarding.debugLogs" />
 		<ee:transform doc:name="response payload" doc:id="058bdb89-4851-436e-8303-794f498d7603">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
@@ -216,7 +119,7 @@ payload]]></ee:set-payload>
 		<logger level="INFO" doc:name="End Logger" doc:id="49512e9e-c43b-456d-a177-a61dae170634" message='#["End of the flow logger: Retrieved Incident Successfully"]' category="com.org.mule.resource-onboarding.infoLogs"/>
     </flow>
 	<flow name="jwt-token-generation-flow" doc:id="a46c5e00-ccb9-47b0-b3da-4db2f61d2006" >
-		<logger level="INFO" doc:name="Logger" doc:id="9ad2372e-038d-4cad-85ef-2a21c727913d" message='#["flow strated to generate JWT token"]' category="com.org.mule.resource-onboarding.infoLogs"/>
+		<logger level="INFO" doc:name="JWT Logger" doc:id="9ad2372e-038d-4cad-85ef-2a21c727913d" message='#["flow strated to generate JWT token"]' category="com.org.mule.resource-onboarding.infoLogs"/>
 		<ee:transform doc:name="Headers and Payload" doc:id="da83342a-0e1f-4921-a7ca-d5bf05cf0a37" >
 			<ee:message >
 			</ee:message>
@@ -234,7 +137,8 @@ output application/json
 var tokenpayload = {
 	"sub": "8919480081",
 	"name": "Sai Naveena Gandhe",
-	"iat": "1516239022"
+	"iat": now() as Number ,
+	"exp": (now() + |PT3600S|) as Number
 }
 ---
 write(tokenpayload,'application/json')]]></ee:set-variable>
@@ -249,22 +153,18 @@ output application/json
 import * from dw::Crypto
 import * from dw::core::Binaries
 import * from dw::core::URL 
-var header = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}"
-var payload = "{\"sub\":\"1234567890\",\"name\":\"John Doe\",\"iat\":1516239022}"
-var secret_key = "abcdefghijklmnopqrstuvwxyz-123456789-123456789-123456789-1234567"
+var header = vars.jwtHeader
+var payload = vars.jwtPayload
+var secret_key = p('secure::securekey')
 fun base64encodeURL(data) = toBase64(data) replace "/" with("_") replace "+" with("-") replace "=" with ""
 --- 
-
 using (header_encoded = base64encodeURL(header),
-
   payload_encoded = base64encodeURL(payload),
-
   mixed = header_encoded ++ "." ++ payload_encoded
-
 )
 mixed ++ "." ++ base64encodeURL(HMACBinary(secret_key as Binary, mixed as Binary, "HmacSHA256"))]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<logger level="DEBUG" doc:name="Logger" doc:id="8d0d4dd4-8dd3-40a1-88db-9b70e04b3264" message='#["Token" : vars.jwtToken]' category="com.org.mule.resource-onboarding.debugLogs"/>
+		<logger level="DEBUG" doc:name="End JWT Logger" doc:id="8d0d4dd4-8dd3-40a1-88db-9b70e04b3264" message='#["Token" : vars.jwtToken]' category="com.org.mule.resource-onboarding.debugLogs"/>
 	</flow>
 </mule>
