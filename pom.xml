@@ -82,7 +82,7 @@
 		<dependency>
 			<groupId>a580ad11-a106-4c57-820f-53ef177f98e9</groupId>
 			<artifactId>resource-onboarding-exp-api-v1</artifactId>
-			<version>1.0.7</version>
+			<version>1.0.5</version>
 			<classifier>raml</classifier>
 			<type>zip</type>
 		</dependency>
